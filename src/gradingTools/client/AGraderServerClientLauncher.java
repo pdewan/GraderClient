@@ -1,22 +1,22 @@
 package gradingTools.client;
 
 
-import gradingTools.server.DriverServerLauncher;
-import gradingTools.server.DriverServerObject;
+import gradingTools.server.GraderServerLauncher;
+import gradingTools.server.RemoteGraderServer;
 import inputport.ConnectionListener;
 import inputport.InputPort;
 import inputport.rpc.duplex.AnAbstractDuplexRPCClientPortLauncher;
 import port.ATracingConnectionListener;
 import port.PortAccessKind;
 
-public class ADriverClientLauncher extends AnAbstractDuplexRPCClientPortLauncher  implements DriverClientLauncher{
+public class AGraderServerClientLauncher extends AnAbstractDuplexRPCClientPortLauncher  implements GraderServerClientLauncher{
 	SynchronizingConnectionListener connectionListener;
-	public ADriverClientLauncher(String aServerHost, String aServerId) {
-		super(DriverClientLauncher.CLIENT_NAME, aServerHost, aServerId, DriverServerLauncher.DRIVER_SERVER_NAME);
+	public AGraderServerClientLauncher(String aServerHost, String aServerId) {
+		super(GraderServerClientLauncher.CLIENT_NAME, aServerHost, aServerId, GraderServerLauncher.DRIVER_SERVER_NAME);
 			
 	}
-	public ADriverClientLauncher(String aServerHost) {
-		super(DriverClientLauncher.CLIENT_NAME, aServerHost, DriverServerLauncher.DRIVER_SERVER_ID, DriverServerLauncher.DRIVER_SERVER_NAME);
+	public AGraderServerClientLauncher(String aServerHost) {
+		super(GraderServerClientLauncher.CLIENT_NAME, aServerHost, GraderServerLauncher.DRIVER_SERVER_ID, GraderServerLauncher.DRIVER_SERVER_NAME);
 			
 	}
 	
@@ -24,20 +24,20 @@ public class ADriverClientLauncher extends AnAbstractDuplexRPCClientPortLauncher
 //		return PortAccessKind.SIMPLEX;
 //	}
 
-	public ADriverClientLauncher(String aClientName, String aServerHost, String aServerId, String aServerName) {
+	public AGraderServerClientLauncher(String aClientName, String aServerHost, String aServerId, String aServerName) {
 		super(aClientName, aServerHost, aServerId, aServerName);
 			
 	}
 	
 
 	protected Class registeredServerClass() {
-		return DriverServerLauncher.DRIVER_SERVER_CLASS;
+		return GraderServerLauncher.DRIVER_SERVER_CLASS;
 	}
 
 	
 
 	
-	protected DriverServerObject driverServerProxy;
+	protected RemoteGraderServer driverServerProxy;
 	
 
 	protected  ConnectionListener getConnectionListener (InputPort anInputPort) {
@@ -52,7 +52,7 @@ public class ADriverClientLauncher extends AnAbstractDuplexRPCClientPortLauncher
 	protected  void createProxies() {
 
 //		sessionServerProxy = (RMISimulationSessionServer) DirectedRPCProxyGenerator.generateRPCProxy((DuplexRPCClientInputPort) mainPort, registeredSessionServerClass());
-		driverServerProxy = (DriverServerObject)  createProxy (registeredServerClass());
+		driverServerProxy = (RemoteGraderServer)  createProxy (registeredServerClass());
 	}
 	
 //	public void drive (String[] args) {
@@ -64,13 +64,13 @@ public class ADriverClientLauncher extends AnAbstractDuplexRPCClientPortLauncher
 
 
 	@Override
-	public DriverServerObject getDriverServerProxy() {
+	public RemoteGraderServer getDriverServerProxy() {
 		return driverServerProxy;
 	}
-	static DriverClientLauncher singleton;
-	public static DriverClientLauncher getInstance() {
+	static GraderServerClientLauncher singleton;
+	public static GraderServerClientLauncher getInstance() {
 		if (singleton == null) {
-			singleton = new ADriverClientLauncher("localhost");
+			singleton = new AGraderServerClientLauncher("localhost");
 			singleton.launch();
 			
 			try {
@@ -92,16 +92,16 @@ public class ADriverClientLauncher extends AnAbstractDuplexRPCClientPortLauncher
 		// getPort will create another port, it should be called createPort
 		return (SynchronizingConnectionListener) getConnectionListener(mainPort);
 	}
-	public static DriverClientLauncher createAndLaunch(String aServerHost, int aServerNumber) {
-		String aServerId = DriverServerLauncher.computeServerId(aServerNumber);
-		ADriverClientLauncher aClient = new ADriverClientLauncher(aServerHost, aServerId);
+	public static GraderServerClientLauncher createAndLaunch(String aServerHost, int aServerNumber) {
+		String aServerId = GraderServerLauncher.computeServerId(aServerNumber);
+		AGraderServerClientLauncher aClient = new AGraderServerClientLauncher(aServerHost, aServerId);
 		aClient.launch();
 		
 			
 			try {
 //				Thread.sleep(1000);
 				aClient.getSynchronizingConnectionListener().waitForConnectionStatus();
-				if (!aClient.getMainPort().isConnected(DriverServerLauncher.DRIVER_SERVER_NAME) ){
+				if (!aClient.getMainPort().isConnected(GraderServerLauncher.DRIVER_SERVER_NAME) ){
 					// should put in synchronous connect into gipc
 					System.out.println ("Could not connect to grading server #" + aServerNumber);
 					return null;
@@ -116,16 +116,16 @@ public class ADriverClientLauncher extends AnAbstractDuplexRPCClientPortLauncher
 		return aClient;
 			
 	}
-	public static DriverClientLauncher createAndLaunchLocal(int aServerNumber) {
+	public static GraderServerClientLauncher createAndLaunchLocal(int aServerNumber) {
 		return createAndLaunch("localhost", aServerNumber);
 	}
 
 	
 	public static void main (String[] args) {
-		int defaultID = Integer.parseInt(DriverServerLauncher.DRIVER_SERVER_ID);
+		int defaultID = Integer.parseInt(GraderServerLauncher.DRIVER_SERVER_ID);
 		
 		for (int i = 0; i < 3; i ++) {
-			DriverClientLauncher driverClient = createAndLaunchLocal (i);
+			GraderServerClientLauncher driverClient = createAndLaunchLocal (i);
 			if (driverClient != null) {
 				System.out.println ("Grading client: calling server driver with args:" + args);
 				Object retVal = driverClient.getDriverServerProxy().drive(new String[]{});

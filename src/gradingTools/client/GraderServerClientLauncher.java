@@ -2,11 +2,11 @@ package gradingTools.client;
 
 import inputport.InputPort;
 import port.PortLauncher;
-import gradingTools.server.DriverServerObject;
+import gradingTools.server.RemoteGraderServer;
 
-public interface DriverClientLauncher extends PortLauncher {
+public interface GraderServerClientLauncher extends PortLauncher {
 	public static final String CLIENT_NAME =  "Driver Client";
-	DriverServerObject getDriverServerProxy();
+	RemoteGraderServer getDriverServerProxy();
 	SynchronizingConnectionListener getSynchronizingConnectionListener();
 	InputPort getMainPort();
 
