@@ -92,6 +92,10 @@ public class AGraderServerClientLauncher extends AnAbstractDuplexRPCClientPortLa
 		// getPort will create another port, it should be called createPort
 		return (SynchronizingConnectionListener) getConnectionListener(mainPort);
 	}
+	/*
+	 * Create the process and then wait for connectiont to finish.
+	 * Latest gipc should not require a connection listener.
+	 */
 	public static GraderServerClientLauncher createAndLaunch(String aServerHost, int aServerNumber) {
 		String aServerId = GraderServerLauncher.computeServerId(aServerNumber);
 		AGraderServerClientLauncher aClient = new AGraderServerClientLauncher(aServerHost, aServerId);
